@@ -1,284 +1,311 @@
 <!DOCTYPE html>
-<html lang="es">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Controla Beta - Mi App de Finanzas</title>
-    <style>
-        :root {
-            --bg: #000000;
-            --card: #111111;
-            --input: #1a1a1a;
-            --accent: #ffffff;
-            --danger: #ff4d4d;
-            --success: #2ecc71;
-            --text-secondary: #888;
-        }
+<meta charset="UTF-8">
+<title>Controla Beta</title>
 
-        body {
-            margin: 0;
-            background: var(--bg);
-            color: white;
-            font-family: 'Inter', -apple-system, sans-serif;
-            display: flex;
-            justify-content: center;
-        }
+<style>
+body {
+  margin: 0;
+  background: #000;
+  color: white;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+}
 
-        .container {
-            width: 100%;
-            max-width: 450px;
-            padding: 20px;
-        }
+.card {
+  background: #111;
+  padding: 40px;
+  width: 320px;
+  margin: 100px auto;
+  border-radius: 14px;
+}
 
-        .card {
-            background: var(--card);
-            padding: 30px;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            margin-bottom: 20px;
-        }
+input, select {
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0;
+  background: #1a1a1a;
+  border: none;
+  border-radius: 8px;
+  color: white;
+}
 
-        h1, h2, h3 { margin: 0 0 15px 0; font-weight: 600; }
+button {
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+  background: #222;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+  transition: 0.3s;
+}
 
-        input, select {
-            width: 100%;
-            padding: 14px;
-            margin: 8px 0;
-            background: var(--input);
-            border: 1px solid #222;
-            border-radius: 12px;
-            color: white;
-            box-sizing: border-box;
-            font-size: 16px;
-        }
+button:hover {
+  background: #333;
+}
 
-        button {
-            width: 100%;
-            padding: 14px;
-            margin-top: 10px;
-            background: var(--accent);
-            border: none;
-            border-radius: 12px;
-            color: black;
-            font-weight: bold;
-            cursor: pointer;
-            transition: transform 0.2s, opacity 0.2s;
-        }
+header {
+  display: flex;
+  justify-content: space-between;
+  padding: 20px;
+}
 
-        button:active { transform: scale(0.98); }
-        button:hover { opacity: 0.9; }
+section {
+  padding: 20px;
+}
 
-        .secondary-btn { background: transparent; color: white; border: 1px solid #333; }
-        .google-btn { background: #4285F4; color: white; display: flex; align-items: center; justify-content: center; gap: 10px; }
+.saldoBox {
+  text-align: center;
+  font-size: 32px;
+  margin-top: 20px;
+}
 
-        header { display: flex; justify-content: space-between; align-items: center; padding: 20px 0; }
-        
-        .saldoBox { text-align: center; padding: 40px 0; }
-        .saldoBox h2 { color: var(--text-secondary); font-size: 14px; text-transform: uppercase; letter-spacing: 1px; }
-        .saldoBox p { font-size: 48px; font-weight: 700; margin: 10px 0; }
+ul {
+  list-style: none;
+  padding: 0;
+}
 
-        li {
-            background: var(--card);
-            margin: 10px 0;
-            padding: 15px;
-            border-radius: 14px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-left: 4px solid transparent;
-        }
+li {
+  background: #111;
+  margin: 5px 0;
+  padding: 10px;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+}
 
-        .item-ingreso { border-left-color: var(--success); }
-        .item-gasto { border-left-color: var(--danger); }
+.progressBar {
+  height: 6px;
+  background: #222;
+  border-radius: 10px;
+  overflow: hidden;
+}
 
-        .del-btn { width: auto; padding: 5px 10px; background: #222; color: var(--danger); font-size: 12px; }
-
-        .progressBar { height: 8px; background: #222; border-radius: 10px; margin-top: 10px; overflow: hidden; }
-        .progressFill { height: 100%; background: var(--success); transition: width 0.5s ease; }
-        .meta-item { background: #111; padding: 15px; border-radius: 14px; margin-top: 15px; }
-    </style>
+.progressFill {
+  height: 100%;
+  background: white;
+}
+</style>
 </head>
 <body>
 
-<div class="container">
-    <div id="auth">
-        <div class="card">
-            <h1 style="text-align: center;">CONTROLA β</h1>
-            <input id="email" type="email" placeholder="Correo">
-            <input id="password" type="password" placeholder="Contraseña">
+<div id="auth">
+  <div class="card">
+    <h1>CONTROLA BETA</h1>
 
-            <button id="btnLogin">Entrar</button>
-            <button id="btnRegister" class="secondary-btn">Crear Cuenta</button>
-            <div style="margin: 15px 0; text-align: center; color: #444;">o</div>
-            <button id="btnGoogle" class="google-btn">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" width="18" alt="G">
-                Continuar con Google
-            </button>
-            <p id="error" style="color:var(--danger); font-size: 12px; text-align: center; margin-top: 10px;"></p>
-        </div>
-    </div>
+    <input id="email" type="email" placeholder="Correo">
+    <input id="password" type="password" placeholder="Contraseña">
 
-    <div id="app" style="display:none">
-        <header>
-            <h3>Hola 👋</h3>
-            <button id="btnLogout" style="width: auto; padding: 8px 15px; font-size: 11px;" class="secondary-btn">Cerrar Sesión</button>
-        </header>
+    <button onclick="login()">Iniciar sesión</button>
+    <button onclick="register()">Crear cuenta</button>
 
-        <section class="saldoBox">
-            <h2>Saldo Disponible</h2>
-            <p id="saldo">$0.00</p>
-        </section>
+    <p id="error" style="color:red;"></p>
+  </div>
+</div>
 
-        <div class="card">
-            <h3>Nuevo Registro</h3>
-            <select id="tipo">
-                <option value="Ingreso">🟢 Ingreso</option>
-                <option value="Gasto">🔴 Gasto</option>
-            </select>
-            <input id="cantidad" type="number" placeholder="Monto $">
-            <input id="categoria" type="text" placeholder="¿En qué? (Ej: Renta)">
-            <button id="btnGuardar">Guardar</button>
-        </div>
+<div id="app" style="display:none">
 
-        <h3>Historial</h3>
-        <ul id="historial"></ul>
+  <header>
+    <h1>Controla</h1>
+    <button onclick="logout()">Cerrar sesión</button>
+  </header>
 
-        <div class="card" style="margin-top: 40px;">
-            <h3>Metas</h3>
-            <input id="metaNombre" placeholder="Nombre de la meta">
-            <input id="metaMonto" type="number" placeholder="Monto total">
-            <button id="btnMeta">Crear Meta</button>
-            <div id="metas"></div>
-        </div>
-    </div>
+  <section class="saldoBox">
+    <h2>Saldo Actual</h2>
+    <p id="saldo">$0</p>
+  </section>
+
+  <section>
+    <h3>Registrar Movimiento</h3>
+    <select id="tipo">
+      <option value="Ingreso">Ingreso</option>
+      <option value="Gasto">Gasto</option>
+    </select>
+    <input id="cantidad" type="number" placeholder="Cantidad">
+    <input id="categoria" type="text" placeholder="Categoría">
+    <button onclick="addMovimiento()">Guardar</button>
+  </section>
+
+  <section>
+    <h3>Historial</h3>
+    <ul id="historial"></ul>
+  </section>
+
+  <section>
+    <h3>Metas</h3>
+    <input id="metaNombre" placeholder="Nombre meta">
+    <input id="metaMonto" type="number" placeholder="Monto objetivo">
+    <button onclick="addMeta()">Crear meta</button>
+    <div id="metas"></div>
+  </section>
+
 </div>
 
 <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-    import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, where, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    // TUS CREDENCIALES INTEGRADAS
-    const firebaseConfig = {
-      apiKey: "AIzaSyB2abvkMARMNvzrFg6uOuCCXHviLIOCRig",
-      authDomain: "controla-99f10.firebaseapp.com",
-      projectId: "controla-99f10",
-      storageBucket: "controla-99f10.firebasestorage.app",
-      messagingSenderId: "275905461334",
-      appId: "1:275905461334:web:6849cc497d69ad7092cff7",
-      measurementId: "G-L8DCPLBYGZ"
-    };
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  getDocs,
+  deleteDoc,
+  doc,
+  query,
+  where
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    let saldoGlobal = 0;
-    const errorText = document.getElementById("error");
+const firebaseConfig = {
+  apiKey: "AQUI_TU_API_KEY",
+  authDomain: "AQUI_TU_AUTH_DOMAIN",
+  projectId: "AQUI_TU_PROJECT_ID",
+  storageBucket: "AQUI_TU_BUCKET",
+  messagingSenderId: "AQUI_TU_ID",
+  appId: "AQUI_TU_APP_ID"
+};
 
-    onAuthStateChanged(auth, user => {
-        if (user) {
-            document.getElementById("auth").style.display = "none";
-            document.getElementById("app").style.display = "block";
-            loadData();
-        } else {
-            document.getElementById("auth").style.display = "block";
-            document.getElementById("app").style.display = "none";
-        }
-    });
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
-    document.getElementById("btnLogin").onclick = () => authAction('login');
-    document.getElementById("btnRegister").onclick = () => authAction('register');
-    document.getElementById("btnLogout").onclick = () => signOut(auth);
-    
-    document.getElementById("btnGoogle").onclick = async () => {
-        try { await signInWithPopup(auth, new GoogleAuthProvider()); } 
-        catch (e) { errorText.innerText = "Error con Google: " + e.message; }
-    };
+let saldoGlobal = 0;
+const errorText = document.getElementById("error");
 
-    async function authAction(type) {
-        const email = document.getElementById("email").value;
-        const password = document.getElementById("password").value;
-        if(!email || !password) return errorText.innerText = "Faltan datos";
-        try {
-            if(type === 'register') await createUserWithEmailAndPassword(auth, email, password);
-            else await signInWithEmailAndPassword(auth, email, password);
-        } catch (e) { errorText.innerText = "Error: " + e.message; }
-    }
+onAuthStateChanged(auth, user => {
+  if (user) {
+    document.getElementById("auth").style.display = "none";
+    document.getElementById("app").style.display = "block";
+    loadData();
+  } else {
+    document.getElementById("auth").style.display = "block";
+    document.getElementById("app").style.display = "none";
+  }
+});
 
-    document.getElementById("btnGuardar").onclick = async () => {
-        const cantidad = parseFloat(document.getElementById("cantidad").value);
-        const categoria = document.getElementById("categoria").value;
-        if(!cantidad || !categoria) return;
+window.register = async () => {
+  try {
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+    await createUserWithEmailAndPassword(auth, email, password);
+  } catch (error) {
+    errorText.innerText = error.message;
+  }
+};
 
-        await addDoc(collection(db, "movimientos"), {
-            userId: auth.currentUser.uid,
-            tipo: document.getElementById("tipo").value,
-            cantidad, categoria, fecha: new Date()
-        });
-        document.getElementById("cantidad").value = "";
-        document.getElementById("categoria").value = "";
-        loadData();
-    };
+window.login = async () => {
+  try {
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+    await signInWithEmailAndPassword(auth, email, password);
+  } catch (error) {
+    errorText.innerText = error.message;
+  }
+};
 
-    async function loadData() {
-        saldoGlobal = 0;
-        const historial = document.getElementById("historial");
-        const movQuery = query(collection(db, "movimientos"), where("userId", "==", auth.currentUser.uid), orderBy("fecha", "desc"));
-        const snapshot = await getDocs(movQuery);
-        historial.innerHTML = "";
+window.logout = async () => {
+  await signOut(auth);
+};
 
-        snapshot.forEach(d => {
-            const data = d.data();
-            const esIngreso = data.tipo === "Ingreso";
-            saldoGlobal += esIngreso ? data.cantidad : -data.cantidad;
+window.addMovimiento = async () => {
+  const tipo = document.getElementById("tipo").value;
+  const cantidad = parseFloat(document.getElementById("cantidad").value);
+  const categoria = document.getElementById("categoria").value;
 
-            const li = document.createElement("li");
-            li.className = esIngreso ? "item-ingreso" : "item-gasto";
-            li.innerHTML = `
-                <div><strong>${data.categoria}</strong></div>
-                <div style="display:flex; align-items:center; gap:10px">
-                    <b style="color: ${esIngreso ? 'var(--success)' : 'var(--danger)'}">$${data.cantidad.toFixed(2)}</b>
-                    <button class="del-btn" data-id="${d.id}">✕</button>
-                </div>`;
-            historial.appendChild(li);
-        });
+  await addDoc(collection(db, "movimientos"), {
+    userId: auth.currentUser.uid,
+    tipo,
+    cantidad,
+    categoria,
+    fecha: new Date()
+  });
 
-        document.querySelectorAll('.del-btn').forEach(btn => {
-            btn.onclick = async () => {
-                await deleteDoc(doc(db, "movimientos", btn.dataset.id));
-                loadData();
-            };
-        });
+  loadData();
+};
 
-        document.getElementById("saldo").innerText = `$${saldoGlobal.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
-        loadMetas();
-    }
+window.deleteMovimiento = async (id) => {
+  await deleteDoc(doc(db, "movimientos", id));
+  loadData();
+};
 
-    document.getElementById("btnMeta").onclick = async () => {
-        const nombre = document.getElementById("metaNombre").value;
-        const objetivo = parseFloat(document.getElementById("metaMonto").value);
-        if(!nombre || !objetivo) return;
-        await addDoc(collection(db, "metas"), { userId: auth.currentUser.uid, nombre, objetivo });
-        document.getElementById("metaNombre").value = "";
-        document.getElementById("metaMonto").value = "";
-        loadData();
-    };
+window.addMeta = async () => {
+  const nombre = document.getElementById("metaNombre").value;
+  const objetivo = parseFloat(document.getElementById("metaMonto").value);
 
-    async function loadMetas() {
-        const metasDiv = document.getElementById("metas");
-        const snapshot = await getDocs(query(collection(db, "metas"), where("userId", "==", auth.currentUser.uid)));
-        metasDiv.innerHTML = "";
-        snapshot.forEach(d => {
-            const m = d.data();
-            const porcentaje = Math.max(0, Math.min((saldoGlobal / m.objetivo) * 100, 100));
-            metasDiv.innerHTML += `
-                <div class="meta-item">
-                    <div style="display:flex; justify-content:space-between; font-size:14px"><span>${m.nombre}</span><span>${porcentaje.toFixed(0)}%</span></div>
-                    <div class="progressBar"><div class="progressFill" style="width:${porcentaje}%"></div></div>
-                </div>`;
-        });
-    }
+  await addDoc(collection(db, "metas"), {
+    userId: auth.currentUser.uid,
+    nombre,
+    objetivo
+  });
+
+  loadData();
+};
+
+async function loadData() {
+  saldoGlobal = 0;
+  const historial = document.getElementById("historial");
+  const saldo = document.getElementById("saldo");
+  historial.innerHTML = "";
+
+  const movQuery = query(
+    collection(db, "movimientos"),
+    where("userId", "==", auth.currentUser.uid)
+  );
+
+  const snapshot = await getDocs(movQuery);
+
+  snapshot.forEach(d => {
+    const data = d.data();
+    saldoGlobal += data.tipo === "Ingreso" ? data.cantidad : -data.cantidad;
+
+    const li = document.createElement("li");
+    li.innerHTML = `
+      ${data.tipo} - $${data.cantidad}
+      <button onclick="deleteMovimiento('${d.id}')">X</button>
+    `;
+    historial.appendChild(li);
+  });
+
+  saldo.innerText = `$${saldoGlobal}`;
+  loadMetas();
+}
+
+async function loadMetas() {
+  const metasDiv = document.getElementById("metas");
+  metasDiv.innerHTML = "";
+
+  const metasQuery = query(
+    collection(db, "metas"),
+    where("userId", "==", auth.currentUser.uid)
+  );
+
+  const snapshot = await getDocs(metasQuery);
+
+  snapshot.forEach(d => {
+    const m = d.data();
+    const porcentaje = Math.min((saldoGlobal / m.objetivo) * 100, 100);
+
+    const div = document.createElement("div");
+    div.innerHTML = `
+      <h4>${m.nombre}</h4>
+      <p>$${saldoGlobal} / $${m.objetivo}</p>
+      <div class="progressBar">
+        <div class="progressFill" style="width:${porcentaje}%"></div>
+      </div>
+    `;
+    metasDiv.appendChild(div);
+  });
+}
+
 </script>
 </body>
 </html>
