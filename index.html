@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Controla Beta - Finanzas</title>
+    <title>Controla Beta - Mi App de Finanzas</title>
     <style>
         :root {
             --bg: #000000;
@@ -104,24 +104,24 @@
     <div id="auth">
         <div class="card">
             <h1 style="text-align: center;">CONTROLA β</h1>
-            <input id="email" type="email" placeholder="Correo electrónico">
+            <input id="email" type="email" placeholder="Correo">
             <input id="password" type="password" placeholder="Contraseña">
 
-            <button id="btnLogin">Iniciar Sesión</button>
+            <button id="btnLogin">Entrar</button>
             <button id="btnRegister" class="secondary-btn">Crear Cuenta</button>
             <div style="margin: 15px 0; text-align: center; color: #444;">o</div>
             <button id="btnGoogle" class="google-btn">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" width="18" alt="Google">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" width="18" alt="G">
                 Continuar con Google
             </button>
-            <p id="error" style="color:var(--danger); font-size: 13px; text-align: center;"></p>
+            <p id="error" style="color:var(--danger); font-size: 12px; text-align: center; margin-top: 10px;"></p>
         </div>
     </div>
 
     <div id="app" style="display:none">
         <header>
-            <h3>Controla</h3>
-            <button id="btnLogout" style="width: auto; padding: 8px 15px; font-size: 12px;" class="secondary-btn">Salir</button>
+            <h3>Hola 👋</h3>
+            <button id="btnLogout" style="width: auto; padding: 8px 15px; font-size: 11px;" class="secondary-btn">Cerrar Sesión</button>
         </header>
 
         <section class="saldoBox">
@@ -130,13 +130,13 @@
         </section>
 
         <div class="card">
-            <h3>Nuevo Movimiento</h3>
+            <h3>Nuevo Registro</h3>
             <select id="tipo">
                 <option value="Ingreso">🟢 Ingreso</option>
                 <option value="Gasto">🔴 Gasto</option>
             </select>
-            <input id="cantidad" type="number" placeholder="Cantidad $">
-            <input id="categoria" type="text" placeholder="Categoría (Ej: Comida)">
+            <input id="cantidad" type="number" placeholder="Monto $">
+            <input id="categoria" type="text" placeholder="¿En qué? (Ej: Renta)">
             <button id="btnGuardar">Guardar</button>
         </div>
 
@@ -144,9 +144,9 @@
         <ul id="historial"></ul>
 
         <div class="card" style="margin-top: 40px;">
-            <h3>Metas de Ahorro</h3>
-            <input id="metaNombre" placeholder="¿Para qué ahorras?">
-            <input id="metaMonto" type="number" placeholder="Monto objetivo">
+            <h3>Metas</h3>
+            <input id="metaNombre" placeholder="Nombre de la meta">
+            <input id="metaMonto" type="number" placeholder="Monto total">
             <button id="btnMeta">Crear Meta</button>
             <div id="metas"></div>
         </div>
@@ -158,14 +158,15 @@
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
     import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, where, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    // Pega aquí tus credenciales de Firebase
+    // TUS CREDENCIALES INTEGRADAS
     const firebaseConfig = {
-        apiKey: "TU_API_KEY",
-        authDomain: "TU_AUTH_DOMAIN",
-        projectId: "TU_PROJECT_ID",
-        storageBucket: "TU_BUCKET",
-        messagingSenderId: "TU_ID",
-        appId: "TU_APP_ID"
+      apiKey: "AIzaSyB2abvkMARMNvzrFg6uOuCCXHviLIOCRig",
+      authDomain: "controla-99f10.firebaseapp.com",
+      projectId: "controla-99f10",
+      storageBucket: "controla-99f10.firebasestorage.app",
+      messagingSenderId: "275905461334",
+      appId: "1:275905461334:web:6849cc497d69ad7092cff7",
+      measurementId: "G-L8DCPLBYGZ"
     };
 
     const app = initializeApp(firebaseConfig);
@@ -175,7 +176,6 @@
     let saldoGlobal = 0;
     const errorText = document.getElementById("error");
 
-    // Lógica de Autenticación
     onAuthStateChanged(auth, user => {
         if (user) {
             document.getElementById("auth").style.display = "none";
@@ -192,8 +192,7 @@
     document.getElementById("btnLogout").onclick = () => signOut(auth);
     
     document.getElementById("btnGoogle").onclick = async () => {
-        const provider = new GoogleAuthProvider();
-        try { await signInWithPopup(auth, provider); } 
+        try { await signInWithPopup(auth, new GoogleAuthProvider()); } 
         catch (e) { errorText.innerText = "Error con Google: " + e.message; }
     };
 
@@ -207,7 +206,6 @@
         } catch (e) { errorText.innerText = "Error: " + e.message; }
     }
 
-    // Lógica de Datos
     document.getElementById("btnGuardar").onclick = async () => {
         const cantidad = parseFloat(document.getElementById("cantidad").value);
         const categoria = document.getElementById("categoria").value;
@@ -218,6 +216,8 @@
             tipo: document.getElementById("tipo").value,
             cantidad, categoria, fecha: new Date()
         });
+        document.getElementById("cantidad").value = "";
+        document.getElementById("categoria").value = "";
         loadData();
     };
 
@@ -239,21 +239,29 @@
                 <div><strong>${data.categoria}</strong></div>
                 <div style="display:flex; align-items:center; gap:10px">
                     <b style="color: ${esIngreso ? 'var(--success)' : 'var(--danger)'}">$${data.cantidad.toFixed(2)}</b>
-                    <button class="del-btn" onclick="deleteMov('${d.id}')">✕</button>
+                    <button class="del-btn" data-id="${d.id}">✕</button>
                 </div>`;
             historial.appendChild(li);
         });
-        document.getElementById("saldo").innerText = `$${saldoGlobal.toFixed(2)}`;
+
+        document.querySelectorAll('.del-btn').forEach(btn => {
+            btn.onclick = async () => {
+                await deleteDoc(doc(db, "movimientos", btn.dataset.id));
+                loadData();
+            };
+        });
+
+        document.getElementById("saldo").innerText = `$${saldoGlobal.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
         loadMetas();
     }
-
-    window.deleteMov = async (id) => { await deleteDoc(doc(db, "movimientos", id)); loadData(); };
 
     document.getElementById("btnMeta").onclick = async () => {
         const nombre = document.getElementById("metaNombre").value;
         const objetivo = parseFloat(document.getElementById("metaMonto").value);
         if(!nombre || !objetivo) return;
         await addDoc(collection(db, "metas"), { userId: auth.currentUser.uid, nombre, objetivo });
+        document.getElementById("metaNombre").value = "";
+        document.getElementById("metaMonto").value = "";
         loadData();
     };
 
@@ -266,7 +274,7 @@
             const porcentaje = Math.max(0, Math.min((saldoGlobal / m.objetivo) * 100, 100));
             metasDiv.innerHTML += `
                 <div class="meta-item">
-                    <div style="display:flex; justify-content:space-between"><span>${m.nombre}</span><span>${porcentaje.toFixed(0)}%</span></div>
+                    <div style="display:flex; justify-content:space-between; font-size:14px"><span>${m.nombre}</span><span>${porcentaje.toFixed(0)}%</span></div>
                     <div class="progressBar"><div class="progressFill" style="width:${porcentaje}%"></div></div>
                 </div>`;
         });
