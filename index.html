@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Controla Beta</title>
+
+<style>
+body {
+  margin: 0;
+  background: #000;
+  color: white;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.card {
+  background: #111;
+  padding: 40px;
+  width: 320px;
+  margin: 100px auto;
+  border-radius: 14px;
+}
+
+input, select {
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0;
+  background: #1a1a1a;
+  border: none;
+  border-radius: 8px;
+  color: white;
+}
+
+button {
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+  background: #222;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+button:hover {
+  background: #333;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  padding: 20px;
+}
+
+section {
+  padding: 20px;
+}
+
+.saldoBox {
+  text-align: center;
+  font-size: 32px;
+  margin-top: 20px;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+}
+
+li {
+  background: #111;
+  margin: 5px 0;
+  padding: 10px;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.progressBar {
+  height: 6px;
+  background: #222;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: white;
+}
+</style>
+</head>
+<body>
+
+<div id="auth">
+  <div class="card">
+    <h1>CONTROLA BETA</h1>
+
+    <input id="email" type="email" placeholder="Correo">
+    <input id="password" type="password" placeholder="Contraseña">
+
+    <button onclick="login()">Iniciar sesión</button>
+    <button onclick="register()">Crear cuenta</button>
+    <button onclick="googleLogin()">Iniciar con Google</button>
+
+    <p id="error" style="color:red;"></p>
+  </div>
+</div>
+
+<div id="app" style="display:none">
+
+  <header>
+    <h1>Controla</h1>
+    <button onclick="logout()">Cerrar sesión</button>
+  </header>
+
+  <section class="saldoBox">
+    <h2>Saldo Actual</h2>
+    <p id="saldo">$0</p>
+  </section>
+
+  <section>
+    <h3>Registrar Movimiento</h3>
+    <select id="tipo">
+      <option value="Ingreso">Ingreso</option>
+      <option value="Gasto">Gasto</option>
+    </select>
+    <input id="cantidad" type="number" placeholder="Cantidad">
+    <input id="categoria" type="text" placeholder="Categoría">
+    <button onclick="addMovimiento()">Guardar</button>
+  </section>
+
+  <section>
+    <h3>Historial</h3>
+    <ul id="historial"></ul>
+  </section>
+
+  <section>
+    <h3>Metas</h3>
+    <input id="metaNombre" placeholder="Nombre meta">
+    <input id="metaMonto" type="number" placeholder="Monto objetivo">
+    <button onclick="addMeta()">Crear meta</button>
+    <div id="metas"></div>
+  </section>
+
+</div>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+  GoogleAuthProvider,
+  signInWithPopup,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  getDocs,
+  deleteDoc,
+  doc,
+  query,
+  where
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "TU_API_KEY",
+  authDomain: "TU_AUTH_DOMAIN",
+  projectId: "TU_PROJECT_ID",
+  storageBucket: "TU_BUCKET",
+  messagingSenderId: "TU_ID",
+  appId: "TU_APP_ID"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+let saldoGlobal = 0;
+const errorText = document.getElementById("error");
+
+onAuthStateChanged(auth, user => {
+  if (user) {
+    document.getElementById("auth").style.display = "none";
+    document.getElementById("app").style.display = "block";
+    loadData();
+  } else {
+    document.getElementById("auth").style.display = "block";
+    document.getElementById("app").style.display = "none";
+  }
+});
+
+window.register = async () => {
+  try {
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+    await createUserWithEmailAndPassword(auth, email, password);
+  } catch (error) {
+    errorText.innerText = error.message;
+  }
+};
+
+window.login = async () => {
+  try {
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+    await signInWithEmailAndPassword(auth, email, password);
+  } catch (error) {
+    errorText.innerText = error.message;
+  }
+};
+
+window.googleLogin = async () => {
+  try {
+    const provider = new GoogleAuthProvider();
+    await signInWithPopup(auth, provider);
+  } catch (error) {
+    errorText.innerText = error.message;
+  }
+};
+
+window.logout = async () => {
+  await signOut(auth);
+};
+
+window.addMovimiento = async () => {
+  const tipo = document.getElementById("tipo").value;
+  const cantidad = parseFloat(document.getElementById("cantidad").value);
+  const categoria = document.getElementById("categoria").value;
+
+  await addDoc(collection(db, "movimientos"), {
+    userId: auth.currentUser.uid,
+    tipo,
+    cantidad,
+    categoria,
+    fecha: new Date()
+  });
+
+  loadData();
+};
+
+window.deleteMovimiento = async (id) => {
+  await deleteDoc(doc(db, "movimientos", id));
+  loadData();
+};
+
+window.addMeta = async () => {
+  const nombre = document.getElementById("metaNombre").value;
+  const objetivo = parseFloat(document.getElementById("metaMonto").value);
+
+  await addDoc(collection(db, "metas"), {
+    userId: auth.currentUser.uid,
+    nombre,
+    objetivo
+  });
+
+  loadData();
+};
+
+async function loadData() {
+  saldoGlobal = 0;
+  const historial = document.getElementById("historial");
+  const saldo = document.getElementById("saldo");
+  historial.innerHTML = "";
+
+  const movQuery = query(
+    collection(db, "movimientos"),
+    where("userId", "==", auth.currentUser.uid)
+  );
+
+  const snapshot = await getDocs(movQuery);
+
+  snapshot.forEach(d => {
+    const data = d.data();
+    saldoGlobal += data.tipo === "Ingreso" ? data.cantidad : -data.cantidad;
+
+    const li = document.createElement("li");
+    li.innerHTML = `
+      ${data.tipo} - $${data.cantidad}
+      <button onclick="deleteMovimiento('${d.id}')">X</button>
+    `;
+    historial.appendChild(li);
+  });
+
+  saldo.innerText = `$${saldoGlobal}`;
+  loadMetas();
+}
+
+async function loadMetas() {
+  const metasDiv = document.getElementById("metas");
+  metasDiv.innerHTML = "";
+
+  const metasQuery = query(
+    collection(db, "metas"),
+    where("userId", "==", auth.currentUser.uid)
+  );
+
+  const snapshot = await getDocs(metasQuery);
+
+  snapshot.forEach(d => {
+    const m = d.data();
+    const porcentaje = Math.min((saldoGlobal / m.objetivo) * 100, 100);
+
+    const div = document.createElement("div");
+    div.innerHTML = `
+      <h4>${m.nombre}</h4>
+      <p>$${saldoGlobal} / $${m.objetivo}</p>
+      <div class="progressBar">
+        <div class="progressFill" style="width:${porcentaje}%"></div>
+      </div>
+    `;
+    metasDiv.appendChild(div);
+  });
+}
+
+</script>
+</body>
+</html>
