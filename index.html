@@ -1,311 +1,230 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-<meta charset="UTF-8">
-<title>Controla Beta</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controla Beta - Local</title>
+    <style>
+        :root {
+            --bg: #000000;
+            --card: #111111;
+            --input: #1a1a1a;
+            --accent: #ffffff;
+            --danger: #ff4d4d;
+            --success: #2ecc71;
+            --text-secondary: #888;
+        }
 
-<style>
-body {
-  margin: 0;
-  background: #000;
-  color: white;
-  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-}
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: white;
+            font-family: 'Inter', -apple-system, sans-serif;
+            display: flex;
+            justify-content: center;
+        }
 
-.card {
-  background: #111;
-  padding: 40px;
-  width: 320px;
-  margin: 100px auto;
-  border-radius: 14px;
-}
+        .container {
+            width: 100%;
+            max-width: 450px;
+            padding: 20px;
+        }
 
-input, select {
-  width: 100%;
-  padding: 12px;
-  margin: 10px 0;
-  background: #1a1a1a;
-  border: none;
-  border-radius: 8px;
-  color: white;
-}
+        .card {
+            background: var(--card);
+            padding: 25px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
 
-button {
-  width: 100%;
-  padding: 12px;
-  margin-top: 10px;
-  background: #222;
-  border: none;
-  border-radius: 8px;
-  color: white;
-  cursor: pointer;
-  transition: 0.3s;
-}
+        h1, h2, h3 { margin: 0 0 15px 0; }
 
-button:hover {
-  background: #333;
-}
+        input, select {
+            width: 100%;
+            padding: 14px;
+            margin: 8px 0;
+            background: var(--input);
+            border: 1px solid #222;
+            border-radius: 12px;
+            color: white;
+            box-sizing: border-box;
+        }
 
-header {
-  display: flex;
-  justify-content: space-between;
-  padding: 20px;
-}
+        button {
+            width: 100%;
+            padding: 14px;
+            background: var(--accent);
+            border: none;
+            border-radius: 12px;
+            color: black;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
 
-section {
-  padding: 20px;
-}
+        button:hover { opacity: 0.8; }
 
-.saldoBox {
-  text-align: center;
-  font-size: 32px;
-  margin-top: 20px;
-}
+        .btn-delete {
+            background: #222;
+            color: var(--danger);
+            width: auto;
+            padding: 5px 10px;
+            margin: 0;
+        }
 
-ul {
-  list-style: none;
-  padding: 0;
-}
+        .saldoBox { text-align: center; padding: 30px 0; }
+        .saldoBox p { font-size: 45px; font-weight: bold; margin: 10px 0; }
 
-li {
-  background: #111;
-  margin: 5px 0;
-  padding: 10px;
-  border-radius: 8px;
-  display: flex;
-  justify-content: space-between;
-}
+        ul { list-style: none; padding: 0; }
 
-.progressBar {
-  height: 6px;
-  background: #222;
-  border-radius: 10px;
-  overflow: hidden;
-}
+        li {
+            background: var(--card);
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid transparent;
+        }
 
-.progressFill {
-  height: 100%;
-  background: white;
-}
-</style>
+        .item-ingreso { border-left-color: var(--success); }
+        .item-gasto { border-left-color: var(--danger); }
+
+        .progressBar { height: 8px; background: #222; border-radius: 10px; margin-top: 10px; overflow: hidden; }
+        .progressFill { height: 100%; background: var(--success); transition: width 0.5s; }
+    </style>
 </head>
 <body>
 
-<div id="auth">
-  <div class="card">
-    <h1>CONTROLA BETA</h1>
+<div class="container">
+    <header style="padding: 20px 0;">
+        <h1>Controla β</h1>
+        <p style="color: var(--text-secondary); font-size: 12px;">Modo Local (Sin Firebase)</p>
+    </header>
 
-    <input id="email" type="email" placeholder="Correo">
-    <input id="password" type="password" placeholder="Contraseña">
+    <section class="saldoBox">
+        <h2 style="color: var(--text-secondary); font-size: 14px;">SALDO ACTUAL</h2>
+        <p id="saldo">$0.00</p>
+    </section>
 
-    <button onclick="login()">Iniciar sesión</button>
-    <button onclick="register()">Crear cuenta</button>
+    <div class="card">
+        <h3>Nuevo Movimiento</h3>
+        <select id="tipo">
+            <option value="Ingreso">🟢 Ingreso</option>
+            <option value="Gasto">🔴 Gasto</option>
+        </select>
+        <input id="cantidad" type="number" placeholder="Monto $">
+        <input id="categoria" type="text" placeholder="Concepto (ej. Comida)">
+        <button onclick="addMovimiento()">Guardar Registro</button>
+    </div>
 
-    <p id="error" style="color:red;"></p>
-  </div>
-</div>
-
-<div id="app" style="display:none">
-
-  <header>
-    <h1>Controla</h1>
-    <button onclick="logout()">Cerrar sesión</button>
-  </header>
-
-  <section class="saldoBox">
-    <h2>Saldo Actual</h2>
-    <p id="saldo">$0</p>
-  </section>
-
-  <section>
-    <h3>Registrar Movimiento</h3>
-    <select id="tipo">
-      <option value="Ingreso">Ingreso</option>
-      <option value="Gasto">Gasto</option>
-    </select>
-    <input id="cantidad" type="number" placeholder="Cantidad">
-    <input id="categoria" type="text" placeholder="Categoría">
-    <button onclick="addMovimiento()">Guardar</button>
-  </section>
-
-  <section>
     <h3>Historial</h3>
     <ul id="historial"></ul>
-  </section>
 
-  <section>
-    <h3>Metas</h3>
-    <input id="metaNombre" placeholder="Nombre meta">
-    <input id="metaMonto" type="number" placeholder="Monto objetivo">
-    <button onclick="addMeta()">Crear meta</button>
-    <div id="metas"></div>
-  </section>
-
+    <div class="card" style="margin-top: 30px;">
+        <h3>Meta de Ahorro</h3>
+        <input id="metaNombre" placeholder="¿Qué quieres comprar?">
+        <input id="metaMonto" type="number" placeholder="Precio total $">
+        <button onclick="addMeta()">Fijar Meta</button>
+        <div id="metasContainer"></div>
+    </div>
 </div>
 
-<script type="module">
+<script>
+    // Variables de estado
+    let movimientos = JSON.parse(localStorage.getItem('movimientos')) || [];
+    let metas = JSON.parse(localStorage.getItem('metas')) || [];
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import {
-  getAuth,
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  signOut,
-  onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    // Función para guardar y actualizar todo
+    function updateApp() {
+        localStorage.setItem('movimientos', JSON.stringify(movimientos));
+        localStorage.setItem('metas', JSON.stringify(metas));
+        renderData();
+    }
 
-import {
-  getFirestore,
-  collection,
-  addDoc,
-  getDocs,
-  deleteDoc,
-  doc,
-  query,
-  where
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    function addMovimiento() {
+        const cantidad = parseFloat(document.getElementById('cantidad').value);
+        const categoria = document.getElementById('categoria').value;
+        const tipo = document.getElementById('tipo').value;
 
-const firebaseConfig = {
-  apiKey: "AQUI_TU_API_KEY",
-  authDomain: "AQUI_TU_AUTH_DOMAIN",
-  projectId: "AQUI_TU_PROJECT_ID",
-  storageBucket: "AQUI_TU_BUCKET",
-  messagingSenderId: "AQUI_TU_ID",
-  appId: "AQUI_TU_APP_ID"
-};
+        if (!cantidad || !categoria) return alert("Llena todos los campos");
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+        movimientos.unshift({ id: Date.now(), tipo, cantidad, categoria });
+        document.getElementById('cantidad').value = '';
+        document.getElementById('categoria').value = '';
+        updateApp();
+    }
 
-let saldoGlobal = 0;
-const errorText = document.getElementById("error");
+    function deleteMovimiento(id) {
+        movimientos = movimientos.filter(m => m.id !== id);
+        updateApp();
+    }
 
-onAuthStateChanged(auth, user => {
-  if (user) {
-    document.getElementById("auth").style.display = "none";
-    document.getElementById("app").style.display = "block";
-    loadData();
-  } else {
-    document.getElementById("auth").style.display = "block";
-    document.getElementById("app").style.display = "none";
-  }
-});
+    function addMeta() {
+        const nombre = document.getElementById('metaNombre').value;
+        const objetivo = parseFloat(document.getElementById('metaMonto').value);
 
-window.register = async () => {
-  try {
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
-    await createUserWithEmailAndPassword(auth, email, password);
-  } catch (error) {
-    errorText.innerText = error.message;
-  }
-};
+        if (!nombre || !objetivo) return alert("Ponle nombre y precio a tu meta");
 
-window.login = async () => {
-  try {
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
-    await signInWithEmailAndPassword(auth, email, password);
-  } catch (error) {
-    errorText.innerText = error.message;
-  }
-};
+        metas = [{ nombre, objetivo }]; // Una meta a la vez para simplificar
+        updateApp();
+    }
 
-window.logout = async () => {
-  await signOut(auth);
-};
+    function renderData() {
+        let saldoTotal = 0;
+        const historialUI = document.getElementById('historial');
+        historialUI.innerHTML = '';
 
-window.addMovimiento = async () => {
-  const tipo = document.getElementById("tipo").value;
-  const cantidad = parseFloat(document.getElementById("cantidad").value);
-  const categoria = document.getElementById("categoria").value;
+        movimientos.forEach(m => {
+            const esIngreso = m.tipo === "Ingreso";
+            saldoTotal += esIngreso ? m.cantidad : -m.cantidad;
 
-  await addDoc(collection(db, "movimientos"), {
-    userId: auth.currentUser.uid,
-    tipo,
-    cantidad,
-    categoria,
-    fecha: new Date()
-  });
+            const li = document.createElement('li');
+            li.className = esIngreso ? "item-ingreso" : "item-gasto";
+            li.innerHTML = `
+                <div>
+                    <strong>${m.categoria}</strong><br>
+                    <small style="color: grey">${m.tipo}</small>
+                </div>
+                <div style="text-align: right">
+                    <b style="color: ${esIngreso ? 'var(--success)' : 'var(--danger)'}">
+                        ${esIngreso ? '+' : '-'}$${m.cantidad.toFixed(2)}
+                    </b><br>
+                    <button class="btn-delete" onclick="deleteMovimiento(${m.id})">Borrar</button>
+                </div>
+            `;
+            historialUI.appendChild(li);
+        });
 
-  loadData();
-};
+        document.getElementById('saldo').innerText = `$${saldoTotal.toLocaleString()}`;
 
-window.deleteMovimiento = async (id) => {
-  await deleteDoc(doc(db, "movimientos", id));
-  loadData();
-};
+        // Render Metas
+        const metasUI = document.getElementById('metasContainer');
+        metasUI.innerHTML = '';
+        metas.forEach(meta => {
+            const porcentaje = Math.max(0, Math.min((saldoTotal / meta.objetivo) * 100, 100));
+            metasUI.innerHTML = `
+                <div style="margin-top: 15px;">
+                    <div style="display:flex; justify-content:space-between; font-size:14px">
+                        <span>${meta.nombre}</span>
+                        <span>${porcentaje.toFixed(0)}%</span>
+                    </div>
+                    <div class="progressBar">
+                        <div class="progressFill" style="width: ${porcentaje}%"></div>
+                    </div>
+                    <p style="font-size: 11px; margin-top: 5px; color: #888">
+                        Faltan $${Math.max(0, meta.objetivo - saldoTotal).toFixed(2)}
+                    </p>
+                </div>
+            `;
+        });
+    }
 
-window.addMeta = async () => {
-  const nombre = document.getElementById("metaNombre").value;
-  const objetivo = parseFloat(document.getElementById("metaMonto").value);
-
-  await addDoc(collection(db, "metas"), {
-    userId: auth.currentUser.uid,
-    nombre,
-    objetivo
-  });
-
-  loadData();
-};
-
-async function loadData() {
-  saldoGlobal = 0;
-  const historial = document.getElementById("historial");
-  const saldo = document.getElementById("saldo");
-  historial.innerHTML = "";
-
-  const movQuery = query(
-    collection(db, "movimientos"),
-    where("userId", "==", auth.currentUser.uid)
-  );
-
-  const snapshot = await getDocs(movQuery);
-
-  snapshot.forEach(d => {
-    const data = d.data();
-    saldoGlobal += data.tipo === "Ingreso" ? data.cantidad : -data.cantidad;
-
-    const li = document.createElement("li");
-    li.innerHTML = `
-      ${data.tipo} - $${data.cantidad}
-      <button onclick="deleteMovimiento('${d.id}')">X</button>
-    `;
-    historial.appendChild(li);
-  });
-
-  saldo.innerText = `$${saldoGlobal}`;
-  loadMetas();
-}
-
-async function loadMetas() {
-  const metasDiv = document.getElementById("metas");
-  metasDiv.innerHTML = "";
-
-  const metasQuery = query(
-    collection(db, "metas"),
-    where("userId", "==", auth.currentUser.uid)
-  );
-
-  const snapshot = await getDocs(metasQuery);
-
-  snapshot.forEach(d => {
-    const m = d.data();
-    const porcentaje = Math.min((saldoGlobal / m.objetivo) * 100, 100);
-
-    const div = document.createElement("div");
-    div.innerHTML = `
-      <h4>${m.nombre}</h4>
-      <p>$${saldoGlobal} / $${m.objetivo}</p>
-      <div class="progressBar">
-        <div class="progressFill" style="width:${porcentaje}%"></div>
-      </div>
-    `;
-    metasDiv.appendChild(div);
-  });
-}
-
+    // Carga inicial
+    renderData();
 </script>
+
 </body>
 </html>
