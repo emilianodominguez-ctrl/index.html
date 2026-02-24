@@ -1,229 +1,298 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Controla Beta - Local</title>
-    <style>
-        :root {
-            --bg: #000000;
-            --card: #111111;
-            --input: #1a1a1a;
-            --accent: #ffffff;
-            --danger: #ff4d4d;
-            --success: #2ecc71;
-            --text-secondary: #888;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Controla</title>
 
-        body {
-            margin: 0;
-            background: var(--bg);
-            color: white;
-            font-family: 'Inter', -apple-system, sans-serif;
-            display: flex;
-            justify-content: center;
-        }
+<link rel="manifest" href="manifest.json">
 
-        .container {
-            width: 100%;
-            max-width: 450px;
-            padding: 20px;
-        }
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-        .card {
-            background: var(--card);
-            padding: 25px;
-            border-radius: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-        }
-
-        h1, h2, h3 { margin: 0 0 15px 0; }
-
-        input, select {
-            width: 100%;
-            padding: 14px;
-            margin: 8px 0;
-            background: var(--input);
-            border: 1px solid #222;
-            border-radius: 12px;
-            color: white;
-            box-sizing: border-box;
-        }
-
-        button {
-            width: 100%;
-            padding: 14px;
-            background: var(--accent);
-            border: none;
-            border-radius: 12px;
-            color: black;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-
-        button:hover { opacity: 0.8; }
-
-        .btn-delete {
-            background: #222;
-            color: var(--danger);
-            width: auto;
-            padding: 5px 10px;
-            margin: 0;
-        }
-
-        .saldoBox { text-align: center; padding: 30px 0; }
-        .saldoBox p { font-size: 45px; font-weight: bold; margin: 10px 0; }
-
-        ul { list-style: none; padding: 0; }
-
-        li {
-            background: var(--card);
-            margin: 10px 0;
-            padding: 15px;
-            border-radius: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-left: 4px solid transparent;
-        }
-
-        .item-ingreso { border-left-color: var(--success); }
-        .item-gasto { border-left-color: var(--danger); }
-
-        .progressBar { height: 8px; background: #222; border-radius: 10px; margin-top: 10px; overflow: hidden; }
-        .progressFill { height: 100%; background: var(--success); transition: width 0.5s; }
-    </style>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:sans-serif;}
+body{
+background:var(--bg);
+color:var(--text);
+display:flex;
+justify-content:center;
+transition:.3s;
+}
+:root{
+--bg:#0f0f17;
+--card:#181825;
+--text:white;
+--accent:#6a5cff;
+}
+.light{
+--bg:#f4f6fb;
+--card:white;
+--text:#111;
+--accent:#4c2cff;
+}
+.app{
+width:100%;
+max-width:430px;
+min-height:100vh;
+padding-bottom:90px;
+}
+header{
+padding:20px;
+text-align:center;
+font-size:22px;
+font-weight:700;
+}
+.card{
+background:var(--card);
+margin:15px;
+padding:18px;
+border-radius:18px;
+box-shadow:0 0 20px rgba(0,0,0,.2);
+}
+.big{font-size:32px;font-weight:600;}
+.small{opacity:.6;font-size:13px;}
+button{
+background:var(--accent);
+border:none;
+color:white;
+padding:12px;
+border-radius:12px;
+margin-top:10px;
+width:100%;
+cursor:pointer;
+}
+input,select{
+width:100%;
+padding:10px;
+margin-top:8px;
+border-radius:10px;
+border:none;
+background:#2a2a35;
+color:white;
+}
+.light input,.light select{
+background:#eee;
+color:#111;
+}
+.progress{
+height:8px;
+background:#333;
+border-radius:20px;
+overflow:hidden;
+margin-top:8px;
+}
+.fill{
+height:100%;
+background:var(--accent);
+}
+nav{
+position:fixed;
+bottom:0;
+width:100%;
+max-width:430px;
+display:flex;
+justify-content:space-around;
+background:var(--card);
+padding:12px 0;
+}
+nav button{
+background:none;
+color:var(--text);
+font-size:11px;
+}
+.view{display:none;}
+.active{display:block;}
+.fab{
+position:fixed;
+bottom:80px;
+right:20px;
+width:60px;
+height:60px;
+border-radius:50%;
+background:var(--accent);
+display:flex;
+justify-content:center;
+align-items:center;
+font-size:30px;
+color:white;
+cursor:pointer;
+}
+</style>
 </head>
 <body>
 
-<div class="container">
-    <header style="padding: 20px 0;">
-        <h1>Controla β</h1>
-        <p style="color: var(--text-secondary); font-size: 12px;">Modo Local (Sin Firebase)</p>
-    </header>
+<div class="app">
 
-    <section class="saldoBox">
-        <h2 style="color: var(--text-secondary); font-size: 14px;">SALDO ACTUAL</h2>
-        <p id="saldo">$0.00</p>
-    </section>
+<header>
+CONTROLA
+<button onclick="toggleMode()">Modo</button>
+</header>
 
-    <div class="card">
-        <h3>Nuevo Movimiento</h3>
-        <select id="tipo">
-            <option value="Ingreso">🟢 Ingreso</option>
-            <option value="Gasto">🔴 Gasto</option>
-        </select>
-        <input id="cantidad" type="number" placeholder="Monto $">
-        <input id="categoria" type="text" placeholder="Concepto (ej. Comida)">
-        <button onclick="addMovimiento()">Guardar Registro</button>
-    </div>
+<div id="inicio" class="view active">
 
-    <h3>Historial</h3>
-    <ul id="historial"></ul>
+<div class="card">
+<div class="small">Saldo Actual</div>
+<div class="big" id="saldo">$0</div>
+<input type="number" id="saldoInput" placeholder="Editar saldo inicial">
+<button onclick="guardarSaldo()">Actualizar</button>
+</div>
 
-    <div class="card" style="margin-top: 30px;">
-        <h3>Meta de Ahorro</h3>
-        <input id="metaNombre" placeholder="¿Qué quieres comprar?">
-        <input id="metaMonto" type="number" placeholder="Precio total $">
-        <button onclick="addMeta()">Fijar Meta</button>
-        <div id="metasContainer"></div>
-    </div>
+<div class="card">
+<canvas id="pieChart"></canvas>
+</div>
+
+</div>
+
+<div id="registrar" class="view">
+<div class="card">
+<select id="tipo">
+<option value="Ingreso">Ingreso</option>
+<option value="Gasto">Gasto</option>
+</select>
+<input type="number" id="cantidad" placeholder="Cantidad">
+<input type="text" id="categoria" placeholder="Categoría">
+<button onclick="addMovimiento()">Guardar</button>
+</div>
+</div>
+
+<div id="metas" class="view">
+<div class="card">
+<input type="text" id="metaNombre" placeholder="Nombre meta">
+<input type="number" id="metaMonto" placeholder="Monto">
+<button onclick="addMeta()">Crear Meta</button>
+</div>
+<div class="card" id="metasLista"></div>
+</div>
+
+<div id="historial" class="view">
+<div class="card">
+<button onclick="exportPDF()">Exportar PDF</button>
+<ul id="lista"></ul>
+</div>
+</div>
+
+<div id="analisis" class="view">
+<div class="card">
+<canvas id="barChart"></canvas>
+</div>
+</div>
+
+<div class="fab" onclick="mostrar('registrar')">+</div>
+
+<nav>
+<button onclick="mostrar('inicio')">Inicio</button>
+<button onclick="mostrar('metas')">Metas</button>
+<button onclick="mostrar('historial')">Historial</button>
+<button onclick="mostrar('analisis')">Análisis</button>
+</nav>
+
 </div>
 
 <script>
-    // Variables de estado
-    let movimientos = JSON.parse(localStorage.getItem('movimientos')) || [];
-    let metas = JSON.parse(localStorage.getItem('metas')) || [];
 
-    // Función para guardar y actualizar todo
-    function updateApp() {
-        localStorage.setItem('movimientos', JSON.stringify(movimientos));
-        localStorage.setItem('metas', JSON.stringify(metas));
-        renderData();
-    }
+if("serviceWorker" in navigator){
+navigator.serviceWorker.register("sw.js");
+}
 
-    function addMovimiento() {
-        const cantidad = parseFloat(document.getElementById('cantidad').value);
-        const categoria = document.getElementById('categoria').value;
-        const tipo = document.getElementById('tipo').value;
+let saldoBase=parseFloat(localStorage.getItem("saldoBase"))||0;
+let movimientos=JSON.parse(localStorage.getItem("movimientos"))||[];
+let metas=JSON.parse(localStorage.getItem("metas"))||[];
 
-        if (!cantidad || !categoria) return alert("Llena todos los campos");
+let pieChart,barChart;
 
-        movimientos.unshift({ id: Date.now(), tipo, cantidad, categoria });
-        document.getElementById('cantidad').value = '';
-        document.getElementById('categoria').value = '';
-        updateApp();
-    }
+function toggleMode(){
+document.body.classList.toggle("light");
+}
 
-    function deleteMovimiento(id) {
-        movimientos = movimientos.filter(m => m.id !== id);
-        updateApp();
-    }
+function mostrar(id){
+document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
+document.getElementById(id).classList.add("active");
+render();
+}
 
-    function addMeta() {
-        const nombre = document.getElementById('metaNombre').value;
-        const objetivo = parseFloat(document.getElementById('metaMonto').value);
+function guardarSaldo(){
+saldoBase=parseFloat(saldoInput.value)||0;
+localStorage.setItem("saldoBase",saldoBase);
+render();
+}
 
-        if (!nombre || !objetivo) return alert("Ponle nombre y precio a tu meta");
+function addMovimiento(){
+movimientos.push({
+tipo:tipo.value,
+cantidad:parseFloat(cantidad.value),
+categoria:categoria.value,
+fecha:new Date().toLocaleDateString()
+});
+localStorage.setItem("movimientos",JSON.stringify(movimientos));
+render();
+}
 
-        metas = [{ nombre, objetivo }]; // Una meta a la vez para simplificar
-        updateApp();
-    }
+function addMeta(){
+metas.push({
+nombre:metaNombre.value,
+monto:parseFloat(metaMonto.value)
+});
+localStorage.setItem("metas",JSON.stringify(metas));
+render();
+}
 
-    function renderData() {
-        let saldoTotal = 0;
-        const historialUI = document.getElementById('historial');
-        historialUI.innerHTML = '';
+function exportPDF(){
+const { jsPDF } = window.jspdf;
+const doc = new jsPDF();
+doc.text("Historial Controla",20,20);
+movimientos.forEach((m,i)=>{
+doc.text(`${m.fecha} - ${m.tipo} - $${m.cantidad}`,20,30+(i*10));
+});
+doc.save("historial.pdf");
+}
 
-        movimientos.forEach(m => {
-            const esIngreso = m.tipo === "Ingreso";
-            saldoTotal += esIngreso ? m.cantidad : -m.cantidad;
+function render(){
 
-            const li = document.createElement('li');
-            li.className = esIngreso ? "item-ingreso" : "item-gasto";
-            li.innerHTML = `
-                <div>
-                    <strong>${m.categoria}</strong><br>
-                    <small style="color: grey">${m.tipo}</small>
-                </div>
-                <div style="text-align: right">
-                    <b style="color: ${esIngreso ? 'var(--success)' : 'var(--danger)'}">
-                        ${esIngreso ? '+' : '-'}$${m.cantidad.toFixed(2)}
-                    </b><br>
-                    <button class="btn-delete" onclick="deleteMovimiento(${m.id})">Borrar</button>
-                </div>
-            `;
-            historialUI.appendChild(li);
-        });
+let ingresos=0,gastos=0;
 
-        document.getElementById('saldo').innerText = `$${saldoTotal.toLocaleString()}`;
+movimientos.forEach(m=>{
+if(m.tipo==="Ingreso") ingresos+=m.cantidad;
+else gastos+=m.cantidad;
+});
 
-        // Render Metas
-        const metasUI = document.getElementById('metasContainer');
-        metasUI.innerHTML = '';
-        metas.forEach(meta => {
-            const porcentaje = Math.max(0, Math.min((saldoTotal / meta.objetivo) * 100, 100));
-            metasUI.innerHTML = `
-                <div style="margin-top: 15px;">
-                    <div style="display:flex; justify-content:space-between; font-size:14px">
-                        <span>${meta.nombre}</span>
-                        <span>${porcentaje.toFixed(0)}%</span>
-                    </div>
-                    <div class="progressBar">
-                        <div class="progressFill" style="width: ${porcentaje}%"></div>
-                    </div>
-                    <p style="font-size: 11px; margin-top: 5px; color: #888">
-                        Faltan $${Math.max(0, meta.objetivo - saldoTotal).toFixed(2)}
-                    </p>
-                </div>
-            `;
-        });
-    }
+let saldoTotal=saldoBase+ingresos-gastos;
+saldo.innerText="$"+saldoTotal;
 
-    // Carga inicial
-    renderData();
+lista.innerHTML=movimientos.map(m=>
+`<li>${m.fecha} - ${m.tipo} - $${m.cantidad}</li>`
+).join("");
+
+metasLista.innerHTML=metas.map(m=>{
+let porcentaje=Math.min((saldoTotal/m.monto)*100,100);
+return `<div>
+<strong>${m.nombre}</strong>
+<div class="progress"><div class="fill" style="width:${porcentaje}%"></div></div>
+</div>`;
+}).join("");
+
+if(pieChart) pieChart.destroy();
+if(barChart) barChart.destroy();
+
+pieChart=new Chart(document.getElementById("pieChart"),{
+type:"doughnut",
+data:{
+labels:["Ingresos","Gastos"],
+datasets:[{data:[ingresos,gastos],backgroundColor:["#6a5cff","#ff4c6a"]}]
+}
+});
+
+barChart=new Chart(document.getElementById("barChart"),{
+type:"bar",
+data:{
+labels:["Ingresos","Gastos"],
+datasets:[{data:[ingresos,gastos],backgroundColor:["#6a5cff","#ff4c6a"]}]
+}
+});
+}
+
+render();
+
 </script>
 
 </body>
